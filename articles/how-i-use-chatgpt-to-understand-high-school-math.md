@@ -1,22 +1,22 @@
 ---
 title: "How I Use ChatGPT to Understand Math, Not Do My Homework"
-description: "A Whitby high school student explains how she uses ChatGPT for hints, error analysis, proofs, calculus, vectors, and practice without outsourcing the thinking."
+description: "A student explains how to use ChatGPT for hints, error analysis, proofs, calculus, vectors, and practice while keeping the mathematical thinking."
 pubDate: 2026-08-20
-updatedDate: 2026-08-20
+updatedDate: 2026-10-11
 category: "Tutorials"
 tags: ["ChatGPT", "math", "high school", "learning", "study skills", "AI tutoring", "education"]
 draft: false
 featured: false
 author: "machaMochaLatte"
 editor: "ramgpt-editorial-team"
-sources: ["https://www.dcp.edu.gov.on.ca/en/curriculum/secondary-mathematics", "https://uwaterloo.ca/future-students/admissions/admission-requirements"]
+sources: ["https://www.dcp.edu.gov.on.ca/en/curriculum/secondary-mathematics"]
 ---
 
 I use ChatGPT for math a lot, but I try very hard not to use it as a machine that finishes homework for me.
 
 That sounds like a small difference. It is actually the whole difference.
 
-I am a high school student in Whitby, Ontario, and I hope to study at the University of Waterloo one day. So when I am doing Advanced Functions, calculus, vectors, or even a problem that is just annoyingly hard, the thing I care about is not whether I can make the homework page look complete.
+As a high school student working through Advanced Functions, calculus, and vectors, I care more about learning how to approach unfamiliar problems than about making a homework page look complete.
 
 I care about whether I can look at a different problem tomorrow and know how to start.
 
@@ -788,7 +788,7 @@ It has to leave enough of the problem for me.
 
 ## Why this matters to me
 
-I want to go to Waterloo eventually.
+I want to become more confident with unfamiliar mathematical problems as I progress.
 
 That is one reason I care about using AI this way.
 
