@@ -2,7 +2,7 @@
 title: "Fine-Tuning: How a Pretrained Model Learns a New Job Without Starting Over"
 description: "AI Foundations #14 explains how fine-tuning continues gradient-based training from pretrained weights, using narrower data to change model behavior without relearning language from scratch."
 pubDate: 2026-09-18
-updatedDate: 2026-10-15
+updatedDate: 2026-10-16
 category: "AI Fundamentals"
 tags: ["AI fundamentals", "fine-tuning", "supervised fine-tuning", "pretraining", "gradient descent", "instruction tuning"]
 draft: false
@@ -12,27 +12,9 @@ editor: "RAMGPT Editorial Team"
 sources:
   - https://arxiv.org/abs/1810.04805
   - https://arxiv.org/abs/2203.02155
-evidenceStatus: "explainer"
-evidenceNote: "A cumulative conceptual lesson on full-model and supervised fine-tuning, grounded in established pretrained-model and instruction-tuning literature."
 ---
 
-Yesterday William ended with a useful distinction:
-
-```text
-pretraining teaches a model to predict language broadly
-```
-
-but that does not automatically give us the assistant behavior we want.
-
-A pretrained model may know a huge amount about language, code, facts, and patterns while still being awkward at a specific job.
-
-So the next question is:
-
-> If the model already learned so much, do we have to train it from zero again to make it useful for a narrower task?
-
-Usually, no.
-
-That is the point of **fine-tuning**.
+Fine-tuning continues training from a pretrained model on more targeted examples. The starting weights already encode useful patterns; additional gradient updates specialize their behavior for a task or format.
 
 ## Start from useful weights, not random weights
 
@@ -61,69 +43,6 @@ The model does not forget how tensors, attention, or language work and begin aga
 We take the parameter values learned during pretraining and continue training them toward a more specific objective.
 
 That starting point is the whole advantage.
-
-## The training machinery is the same machinery we already learned
-
-Fine-tuning sounds like a special process, but mathematically it uses familiar pieces.
-
-We still have:
-
-```text
-forward pass
--> predictions
--> loss
--> backpropagation
--> gradients
--> parameter update
-```
-
-The difference is mainly **where we start and what data/objective we train on**.
-
-Suppose the pretrained parameters are called:
-
-```text
-θ_pretrained
-```
-
-Fine-tuning performs additional updates:
-
-```text
-θ_pretrained
--> θ1
--> θ2
--> θ3
--> ...
--> θ_finetuned
-```
-
-So I do not picture fine-tuning as attaching a separate book of rules to the model.
-
-I picture it as moving the existing parameters to a nearby region that performs the desired job better.
-
-## A geometry picture helps me
-
-Imagine pretraining has already moved the model from a terrible random location to a useful region in a huge parameter space.
-
-Very roughly:
-
-```text
-random start --------------------------> pretrained model
-                                            |
-                                            |
-                                            v
-                                      fine-tuned model
-```
-
-The fine-tuning move can be much smaller than the original pretraining journey.
-
-That is not a claim that every parameter barely changes or that the path is literally two-dimensional. The real model has billions of parameters.
-
-But the picture captures the main idea:
-
-```text
-pretraining learns a broad starting solution
-fine-tuning specializes that solution
-```
 
 ## What does the fine-tuning dataset look like?
 
@@ -443,29 +362,4 @@ The comparison I want to keep is:
 
 The algorithms are related. The context and scale are different.
 
-## The mental model I am keeping
-
-My shortest version is:
-
-```text
-Pretraining gives the model a powerful starting set of weights.
-Fine-tuning continues training from those weights on more targeted examples.
-The same forward-pass, loss, backpropagation, and gradient-update machinery still applies.
-The goal is specialization, not starting over.
-```
-
-This completes another link in our chain:
-
-```text
-architecture
--> pretraining
--> pretrained model
--> fine-tuning
--> specialized model
-```
-
-But once the model is trained, we still have a practical question:
-
-> What exactly happens when I type a prompt and ask the trained model to generate an answer?
-
-That is the next lesson: **inference**.
+Once training ends, the next question is how the resulting model produces an answer. [Inference](/articles/inference-ai-foundations-15/) follows a prompt through that process.

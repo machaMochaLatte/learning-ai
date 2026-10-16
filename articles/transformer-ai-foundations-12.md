@@ -2,7 +2,7 @@
 title: "Transformer: How Attention Becomes a Complete Neural Network Block"
 description: "AI Foundations #12 assembles attention, residual connections, normalization, and MLP layers into the repeating Transformer block behind modern language models."
 pubDate: 2026-09-16
-updatedDate: 2026-09-16
+updatedDate: 2026-10-16
 category: "AI Fundamentals"
 tags: ["AI fundamentals", "transformer", "attention", "MLP", "residual connections", "normalization"]
 draft: false
@@ -12,59 +12,15 @@ editor: "RAMGPT Editorial Team"
 sources:
   - https://arxiv.org/abs/1706.03762
   - https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
-evidenceStatus: "explainer"
-evidenceNote: "A cumulative conceptual lesson based on the Transformer architecture and standard decoder-block components; implementation details vary across model families."
 ---
 
-Yesterday William explained attention with a question I like:
+**Attention is one operation inside a Transformer block.** The complete block also contains feed-forward computation, residual connections, and normalization. Repeating these blocks builds the core of a Transformer language model.
 
-```text
-For this token, which other tokens contain useful information?
-```
+## Two jobs inside a block
 
-Queries and keys produce attention weights. Values provide the information that gets mixed into a token's representation.
+For a decoder-only language model, attention moves information between token positions, while the MLP transforms the information within each position. Residual connections provide additive paths around these sublayers. Normalization controls activation scale; its placement differs between architectures.
 
-That gave us:
-
-```text
-tokens
--> embeddings
--> attention
--> context-dependent vectors
-```
-
-When I first learned this, I thought I had basically learned the Transformer.
-
-I had not.
-
-**Attention is one operation inside a Transformer block.** The useful machine comes from combining attention with several other operations, then repeating that block many times.
-
-## A block is easier to understand as two big jobs
-
-For a decoder-only language model, a simplified Transformer block can be pictured as:
-
-```text
-input
-  |
-  +-> attention
-  |     |
-  |  residual
-  |
-  +-> MLP / feed-forward network
-        |
-     residual
-        |
-      output
-```
-
-Normalization is also inserted around these operations. Exact ordering differs among architectures, so this is a mental model rather than a claim that every modern LLM uses one identical block.
-
-The two big computational jobs are:
-
-1. **Attention:** move information between token positions.
-2. **MLP:** transform the information inside each token position.
-
-I find that distinction much easier to remember than a diagram full of arrows.
+The worked pre-norm block below makes the ordering explicit.
 
 ## Attention lets positions communicate
 
@@ -306,55 +262,4 @@ existing tokens
 
 We will study inference and sampling later. Right now the important thing is where the Transformer stack sits in that pipeline.
 
-## From text to the Transformer stack
-
-Our Foundations series can finally connect almost all of the pieces we have learned:
-
-```text
-text
--> tokenizer
--> token IDs
--> embeddings
--> positional information
--> Transformer block
-     -> attention
-     -> residual
-     -> MLP
-     -> residual
--> Transformer block
--> ...
--> final representation
--> output logits
-```
-
-And underneath all of this are the ideas from the earlier lessons:
-
-```text
-parameters
-weights and biases
-tensors
-forward pass
-loss
-gradient descent
-backpropagation
-```
-
-The Transformer did not replace those ideas. It is an architecture built out of them.
-
-## The mental model I am keeping
-
-My shortest version is:
-
-```text
-Attention lets tokens exchange information.
-The MLP transforms that information.
-Residual connections preserve a direct path.
-Normalization keeps repeated computation manageable.
-Stack the block many times and you get the core of a Transformer language model.
-```
-
-That is still not a trained language model.
-
-We have built the architecture, but we have not explained where its useful behavior comes from at scale.
-
-The next lesson is **pretraining**: how enormous amounts of next-token prediction turn an initially random Transformer into a model that has learned patterns of language, knowledge, code, and more.
+The architecture specifies the computation, but its parameters still need training. [Pretraining](/articles/pretraining-ai-foundations-13/) follows that next step.
