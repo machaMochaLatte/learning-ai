@@ -2,7 +2,7 @@
 title: "Backpropagation: How a Neural Network Gets a Gradient for Every Weight"
 description: "AI Foundations #8 explains backpropagation as repeated chain-rule bookkeeping that carries loss information backward through a neural network to every trainable parameter."
 pubDate: 2026-09-12
-updatedDate: 2026-09-12
+updatedDate: 2026-10-15
 category: "AI Fundamentals"
 tags: ["AI fundamentals", "backpropagation", "neural networks", "gradients", "chain rule", "training"]
 draft: false
@@ -34,9 +34,9 @@ I used to think backpropagation was another optimization algorithm. It is not. G
 
 Suppose we build a tiny computation:
 
-```text
-x -> multiply by w -> y -> square -> loss
-```
+![Forward computation gives x 3 times weight 2 equals y 6 and loss 36; backward derivatives 12 and 3 combine into the weight gradient 36.](/images/diagrams/backprop-chain-rule-reuse.svg)
+
+*Values go forward; local derivatives combine backward through the chain rule. The optimizer is responsible for the later weight update.*
 
 Let:
 

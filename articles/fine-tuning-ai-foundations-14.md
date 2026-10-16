@@ -2,7 +2,7 @@
 title: "Fine-Tuning: How a Pretrained Model Learns a New Job Without Starting Over"
 description: "AI Foundations #14 explains how fine-tuning continues gradient-based training from pretrained weights, using narrower data to change model behavior without relearning language from scratch."
 pubDate: 2026-09-18
-updatedDate: 2026-09-18
+updatedDate: 2026-10-15
 category: "AI Fundamentals"
 tags: ["AI fundamentals", "fine-tuning", "supervised fine-tuning", "pretraining", "gradient descent", "instruction tuning"]
 draft: false
@@ -201,17 +201,11 @@ The key point is that the Transformer is still doing token prediction. We have c
 
 Prompting and fine-tuning solve different problems.
 
-A prompt changes the model's **input**:
+A prompt changes the model's **input**. Fine-tuning changes its **parameters**.
 
-```text
-same weights + different context
-```
+![Prompting leaves pretrained weights unchanged while fine-tuning uses targeted examples and gradients to produce updated weights for future inference.](/images/diagrams/prompting-vs-finetuning-parameters.svg)
 
-Fine-tuning changes the model's **parameters**:
-
-```text
-updated weights + future inputs
-```
+*The input change is temporary; the parameter update persists in the resulting fine-tuned model.*
 
 If I tell a model in one prompt:
 
