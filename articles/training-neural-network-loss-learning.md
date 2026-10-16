@@ -1,8 +1,8 @@
 ---
 title: "How Does a Neural Network Start Learning? Training Begins With Loss"
-description: "AI Foundations #6 connects the forward pass to training by showing why a model needs targets and a loss function before its weights can improve."
+description: "AI Foundations #6 compares predictions with targets, calculates squared and absolute loss, aggregates a batch, and explains what loss can and cannot measure."
 pubDate: 2026-09-10
-updatedDate: 2026-09-10
+updatedDate: 2026-10-16
 category: "AI Fundamentals"
 tags: ["AI fundamentals", "neural networks", "training", "loss function", "machine learning", "student learning"]
 draft: false
@@ -12,257 +12,59 @@ editor: "RAMGPT Editorial Team"
 sources: ["https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html", "https://docs.pytorch.org/docs/stable/nn.html#loss-functions", "https://developers.google.com/machine-learning/crash-course/linear-regression/loss"]
 ---
 
-In the last lesson, William followed an input through a neural network and showed how a forward pass produces an output.
+A forward pass produces a prediction. Training needs a numerical rule that compares that prediction with a target. A loss function supplies that rule, turning many individual errors into an objective the optimizer can reduce.
 
-That left me with a question that sounds obvious but is actually the beginning of training:
+![Predictions and targets producing per-example losses that are averaged into one batch objective](/images/diagrams/loss-batch-objective.svg)
 
-**How does the network know that its output was bad?**
+*The loss function scores predictions under a chosen objective. Backpropagation differentiates the resulting batch loss with respect to model parameters.*
 
-Suppose the model predicts `0.82` and the correct answer is `1.00`. We can look at those two numbers and immediately see a difference. The computer needs that difference turned into a precise numerical objective.
+## One prediction can have several error measures
 
-That is what a **loss function** does.
+Suppose a regression model predicts `0.82` and the target is `1.00`. The signed error is `-0.18`, but positive and negative errors would cancel if they were averaged directly.
 
-I think of this as the point where a neural network stops being only a calculator and becomes something we can train.
+Mean absolute error uses the error magnitude:
 
-## First, separate prediction from learning
+`absolute error = |0.82 − 1.00| = 0.18`
 
-The forward pass from the previous lesson can be summarized as:
+Squared error gives
 
-```text
-input → model → prediction
-```
+`squared error = (0.82 − 1.00)² = 0.0324`
 
-The model uses its current weights and biases. Nothing about that operation automatically changes them.
+Both assign zero to an exact prediction, but they penalize larger errors differently. Squaring makes large deviations grow more quickly.
 
-For training, we add a known target:
+## A batch produces one optimization objective
 
-```text
-input → model → prediction
-                  ↓
-              compare
-                  ↑
-                target
-```
+Training usually evaluates several examples together. For three targets `[1.0, 0.0, 2.0]` and predictions `[0.8, 0.1, 1.5]`, squared errors are `[0.04, 0.01, 0.25]`. Their mean is `0.10`.
 
-The comparison produces a number: the loss.
+Backpropagation starts from that aggregated scalar and applies the chain rule through the computation graph. The resulting gradients tell the optimizer how a small parameter change would affect the batch loss.
 
-```text
-input → prediction → loss
-           ↑           ↑
-         model       target
-```
+The batch size influences the estimate. A small batch can produce noisy gradients; a very large batch changes memory use and optimization behavior. Report it when comparing training runs.
 
-A smaller loss generally means the prediction is closer to what the training objective wants. A larger loss means it is worse according to that objective.
+## Different tasks require different losses
 
-The important phrase is **according to that objective**. Loss is not a universal measurement of intelligence or truth. It is a mathematical rule chosen for the task.
+Regression often uses squared or absolute-error variants. Classification commonly uses cross-entropy between target labels and predicted class probabilities. Language-model pretraining applies token-level cross-entropy to next-token predictions, usually while masking positions that should not contribute.
 
-## A tiny squared-error example
+The loss must match the output and the task. Applying a convenient mathematical objective does not guarantee it captures every property users care about.
 
-Take the prediction:
+## Training loss is not the final evaluation
 
-```text
-prediction = 0.82
-```
+A falling training loss shows that the model is fitting its training objective. It does not prove generalization to unseen data. Compare validation loss and task metrics on examples that did not drive parameter updates.
 
-and target:
+Loss can also hide subgroups and failure modes. One mean value may combine easy and difficult examples, short and long sequences, or different languages. Inspect distributions and task-specific errors when those distinctions matter.
 
-```text
-target = 1.00
-```
+For generation, a lower next-token loss does not automatically guarantee better factuality, instruction following, tool use, or human preference. Those properties require suitable evaluations.
 
-One simple loss is squared error:
+## Loss connects prediction to learning
 
-```text
-loss = (prediction - target)²
-```
+The complete training step is:
 
-So:
+1. load a batch of inputs and targets;
+2. run the model's forward pass;
+3. compute and aggregate loss;
+4. backpropagate parameter gradients;
+5. let the optimizer update parameters;
+6. clear or accumulate gradients according to the training plan.
 
-```text
-loss = (0.82 - 1.00)²
-     = (-0.18)²
-     = 0.0324
-```
+The model begins the next step with slightly different parameter values. Repetition across many batches is what turns a fixed calculation into a trained model.
 
-Now imagine another set of weights produces:
-
-```text
-prediction = 0.40
-```
-
-Then:
-
-```text
-loss = (0.40 - 1.00)²
-     = 0.36
-```
-
-`0.0324` is much smaller than `0.36`, so under this loss function the first prediction is better.
-
-This gives the training process something crucial: a score that changes when the model's parameters change.
-
-## Why not just use right or wrong?
-
-At first I wondered why we need a loss at all. If the task has a correct answer, why not give the model `0` for wrong and `1` for right?
-
-The problem is that training needs more information than a final verdict.
-
-Imagine two predictions for a target of `1.00`:
-
-```text
-A = 0.99
-B = 0.01
-```
-
-If both are simply labeled "wrong," we throw away the fact that A is extremely close and B is extremely far away.
-
-A useful loss function gives us a landscape with degrees of error. Training can then ask not only whether the model is wrong, but which direction would reduce the error.
-
-That direction is where gradients will enter the story.
-
-## Training means repeating a loop
-
-A neural network does not usually learn from one magical calculation. Training repeatedly performs a cycle.
-
-At a high level:
-
-```text
-1. take training data
-2. run a forward pass
-3. calculate loss
-4. calculate how parameters affected that loss
-5. adjust parameters
-6. repeat
-```
-
-We already understand steps 1 through 3 well enough to see the structure.
-
-Steps 4 and 5 are the next mathematical jump. They involve gradients, backpropagation, and an optimizer such as gradient descent.
-
-But I do not want to rush there, because the loss function gives those later operations their purpose.
-
-Without a loss, "improve the model" is vague. With a loss, improvement can mean: **change the parameters so this objective becomes smaller.**
-
-## One training example is not the whole dataset
-
-Real training data contains many examples.
-
-Suppose we have four examples with individual squared errors:
-
-```text
-0.04
-0.01
-0.16
-0.09
-```
-
-A simple mean squared error would average them:
-
-```text
-(0.04 + 0.01 + 0.16 + 0.09) / 4 = 0.075
-```
-
-This matters because we usually want parameters that work well across many examples, not parameters that perfectly memorize the error of one example at one instant.
-
-Training systems commonly process examples in **batches**. That connects directly back to our tensor lesson: instead of one input tensor, the model often receives a tensor containing a batch of inputs, produces a batch of predictions, and computes a loss over that batch.
-
-The ideas from earlier lessons are starting to stack rather than remain separate definitions.
-
-## Different problems need different losses
-
-Squared error is easy to visualize, but it is not the right choice for every task.
-
-Regression problems often use losses based on numerical distance, such as mean squared error or mean absolute error.
-
-Classification problems often use cross-entropy-style losses. Instead of asking only how far one number is from another, the loss measures how the model's predicted distribution relates to the correct class.
-
-Language models are a classification problem repeated over a huge vocabulary. Given the preceding context, the model produces scores for possible next tokens. During training, the known next token supplies the target, and a loss penalizes the model when it assigns insufficient probability to that target.
-
-So when an LLM learns from text, we can sketch one tiny piece of the process like this:
-
-```text
-"The capital of France is" → model → token probabilities
-                                      ↓
-                              target token: "Paris"
-                                      ↓
-                                    loss
-```
-
-Of course, real language-model training operates over many tokens and batches in parallel. But the logical relationship is the same as our tiny numerical example.
-
-## Loss is not the same as accuracy
-
-This distinction confused me at first.
-
-Accuracy is often a metric we use to describe whether final predictions are correct. Loss is the numerical objective used to guide optimization.
-
-Two models can have the same accuracy while having different losses.
-
-For example, suppose a binary classifier considers anything above `0.5` to be class 1. Predictions of `0.51` and `0.99` may both count as correct for a class-1 example, so their accuracy contribution is identical. But a suitable loss can distinguish the model that barely crossed the boundary from the model that assigned much stronger probability to the target.
-
-That extra information is useful during training.
-
-## The model still has not learned yet
-
-This is the part I want to emphasize.
-
-Calculating a loss does **not** change the model.
-
-After the forward pass and loss calculation, the weights are still exactly what they were before.
-
-We now know how bad the output was, but we have not answered the harder question:
-
-**Which weights caused the error, and how should each one move?**
-
-A modern neural network can have millions or billions of parameters. We cannot sensibly try random changes to every weight and rerun the whole model until something improves.
-
-We need mathematics that tells us how sensitive the loss is to changes in those parameters.
-
-That sensitivity is described by a **gradient**.
-
-## Why gradients are the next step
-
-Imagine standing on a hill in fog. You cannot see the entire landscape, but you can measure the slope under your feet.
-
-If your goal is to move downhill, the local slope tells you which direction decreases your height most quickly.
-
-Training a neural network uses a related idea. The loss is like the height, and the model parameters determine where we are on an enormous mathematical landscape.
-
-The gradient tells us how the loss changes when parameters change.
-
-This analogy is imperfect, especially in billions of dimensions, but it gives me a useful mental bridge:
-
-```text
-prediction tells us what the model produced
-loss tells us how bad it was
-gradient tells us how the loss changes
-optimization uses that information to update parameters
-```
-
-We will make that precise in the next lessons.
-
-## The chain so far
-
-We can now connect the first part of the series into one continuous system:
-
-```text
-parameters / weights
-        ↓
-organized as tensors
-        ↓
-used in a forward pass
-        ↓
-produce predictions
-        ↓
-compared with targets
-        ↓
-produce loss
-```
-
-Nothing in that chain requires the model to be mysterious.
-
-It is a sequence of numerical operations with a measurable objective.
-
-The next step is where the word **learning** becomes more literal. We need to use the loss to determine how the parameters should change.
-
-That means learning what a gradient actually is, and why **gradient descent** can turn a loss value into a direction for improving the model.
+[Gradient Descent](/articles/gradient-descent-neural-network-learning/) follows the update itself, while [Backpropagation](/articles/backpropagation-how-neural-networks-get-gradients/) shows how one loss supplies gradients to many earlier parameters.

@@ -41,11 +41,9 @@ Greedy decoding always chooses `cat` because it has the largest probability. Sam
 
 ## Temperature changes the shape of the distribution
 
-Temperature divides the logits before softmax. With temperature \(T\), the probability of token \(i\) is
+Temperature divides the logits before softmax. With temperature `T`, the probability of token `i` is
 
-\[
-p_i = \frac{e^{z_i/T}}{\sum_j e^{z_j/T}}
-\]
+`pᵢ = exp(zᵢ / T) / Σⱼ exp(zⱼ / T)`
 
 For the same logits, a temperature of 0.5 produces approximately 0.867, 0.117, and 0.016. The leading token becomes much more dominant. A temperature of 2.0 produces approximately 0.506, 0.307, and 0.186, leaving more probability on the alternatives.
 

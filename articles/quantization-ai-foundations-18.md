@@ -32,9 +32,7 @@ Post-training quantization starts with an already trained model. A converter gro
 
 A simplified symmetric mapping uses a scale `s`:
 
-\[
-q = \operatorname{round}(w/s), \qquad \hat{w} = s q
-\]
+`q = round(w / s)` and `reconstructed weight = s × q`
 
 `w` is the original weight, `q` is the stored code, and `ŵ` is the value reconstructed for computation. The difference `w - ŵ` is quantization error.
 
@@ -44,9 +42,7 @@ Real formats may use block-specific scales, offsets, codebooks, special packing,
 
 For weights alone, an initial estimate is
 
-\[
-\text{weight bytes} \approx \frac{\text{parameters} \times \text{bits per weight}}{8}
-\]
+`weight bytes ≈ parameters × bits per weight / 8`
 
 For a 7-billion-parameter model, that gives these payload estimates before metadata and mixed-precision tensors:
 
